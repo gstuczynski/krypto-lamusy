@@ -2,26 +2,58 @@
 <html lang="en-US">
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>XHR log time</title>
-    <style></style>
+    <style>
+    </style>
   </head>
   <body>
-    <p id="text">backend nie jest chyba odpalony</p>
+    <div id="root">
+      <h1 id="header">Google Search API</h1>
+      <form id="form">
+        <input type="text" name="search-phrase" id="search-phrase" required>
+        <button type="submit">Search</button>
+      </form>
+    </div>
     <script>
-    fetch('http://localhost:3000/dupa').then(function (response) {
+    const fetchData = (params) => fetch(`http://localhost:3000/dupa?search=${params}`).then(function (response) {
 	if (response.ok) {
 		return response.json();
 	} else {
 		return Promise.reject(response);
 	}
 }).then(function (data) {
-	console.log(data);
-    var paragraph = document.getElementById("text");
-    debugger
-    paragraph.innerHTML = `${data.dupa} - to pobrało z serwera! legancko`;
+  const root = document.getElementById("root");
+  let list = document.getElementById("list");
+  if(!list){
+    list = document.createElement("ul");
+    list.id = 'list';
+  }
+
+  list.innerHTML = '';
+  data.forEach(data => {
+    const listItem = document.createElement('li');
+    const anchor = document.createElement('a');
+
+    anchor.href = data.href;
+    anchor.innerText = data.title;
+
+    listItem.append(anchor);
+    list.append(listItem);
+  })
+
+  root.append(list);
+
 }).catch(function (err) {
 	console.warn('Something went wrong.', err);
 });
+
+const form = document.getElementById('form');
+form.addEventListener('submit', (e) =>{
+  e.preventDefault();
+  fetchData(form['search-phrase'].value);
+})
+
     </script>
   </body>
 </html>
